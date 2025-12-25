@@ -13,21 +13,37 @@ func NewMySQLUserRepository(db *gorm.DB) *MySQLUserRepository {
 	return &MySQLUserRepository{db: db}
 }
 
-func (r *MySQLUserRepository) Create(user *entity.User) error {
-	return nil
+func (r *MySQLUserRepository) Create(user *entity.User) (*entity.User, error) {
+	if err := r.db.Create(&user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
 }
-func (r *MySQLUserRepository) FindByID(id string) (entity.User, error) {
-	return entity.User{}, nil
+func (r *MySQLUserRepository) FindByID(userID string) (*entity.User, error) {
+	var user entity.User
+	if err := r.db.First(&user, "user_id = ?", userID).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
-func (r *MySQLUserRepository) FindByEmail(email string) (entity.User, error) {
-	return entity.User{}, nil
+func (r *MySQLUserRepository) FindByEmail(email string) (*entity.User, error) {
+
+	var user entity.User
+	if err := r.db.First(&user, "email = ?", email).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 func (r *MySQLUserRepository) Update(user *entity.User) error {
-	return nil
+	return r.db.Save(user).Error
 }
-func (r *MySQLUserRepository) Delete(id string) error {
-	return nil
+func (r *MySQLUserRepository) Delete(userID string) error {
+	return r.db.Delete(&entity.User{}, userID).Error
 }
-func (r *MySQLUserRepository) FindAll() ([]entity.User, error) {
-	return nil, nil
+func (r *MySQLUserRepository) FindAll() ([]*entity.User, error) {
+	var users []*entity.User
+	if err := r.db.Model(&users).Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
 }
