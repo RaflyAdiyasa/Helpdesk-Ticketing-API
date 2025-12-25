@@ -13,24 +13,21 @@ func NewMySQLUserRepository(db *gorm.DB) *MySQLUserRepository {
 	return &MySQLUserRepository{db: db}
 }
 
-func (r *MySQLUserRepository) Create(ticket *entity.Ticket) error {
+func (r *MySQLUserRepository) Create(user *entity.User) error {
 	return nil
 }
-func (r *MySQLUserRepository) FindByID(id string) (entity.Ticket, error) {
-	return entity.Ticket{}, nil
+func (r *MySQLUserRepository) FindByID(id string) (entity.User, error) {
+	return entity.User{}, nil
 }
-func (r *MySQLUserRepository) FindByUserID(id string) ([]entity.Ticket, error) {
-	return nil, nil
+func (r *MySQLUserRepository) FindByEmail(email string) (entity.User, error) {
+	return entity.User{}, nil
 }
-func (r *MySQLUserRepository) FindAll() ([]entity.Ticket, error) {
-	return nil, nil
-}
-func (r *MySQLUserRepository) Update(ticket *entity.Ticket) error {
-	return nil
-}
-func (r *MySQLUserRepository) UpdateStatus(ticket *entity.Ticket, status string) error {
+func (r *MySQLUserRepository) Update(user *entity.User) error {
 	return nil
 }
 func (r *MySQLUserRepository) Delete(id string) error {
 	return nil
+}
+func (r *MySQLUserRepository) FindAll() ([]entity.User, error) {
+	return nil, nil
 }
