@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/RaflyAdiyasa/Helpdest-Ticketing-API/internal/domain/entity"
 	"gorm.io/gorm"
 )
@@ -13,24 +15,46 @@ func NewMySQLTicketRepository(db *gorm.DB) *MySQLTicketRepository {
 	return &MySQLTicketRepository{db: db}
 }
 
-func (r *MySQLTicketRepository) Create(ticket *entity.Ticket) error {
-	return nil
+func (r *MySQLTicketRepository) Create(ticket *entity.Ticket) (*entity.Ticket, error) {
+	if err := r.db.Create(ticket).Error; err != nil {
+		return nil, err
+	}
+	return ticket, nil
 }
-func (r *MySQLTicketRepository) FindByID(id string) (entity.Ticket, error) {
-	return entity.Ticket{}, nil
+func (r *MySQLTicketRepository) FindByID(id string) (*entity.Ticket, error) {
+	var ticket entity.Ticket
+	if err := r.db.Preload("User").First(&ticket, "ticked_id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return &ticket, nil
 }
-func (r *MySQLTicketRepository) FindByUserID(id string) ([]entity.Ticket, error) {
-	return nil, nil
+func (r *MySQLTicketRepository) FindByUserID(userID string) ([]*entity.Ticket, error) {
+	var tickets []*entity.Ticket
+	if err := r.db.Model(&tickets).Find(&tickets, "user_id = ?", userID).Error; err != nil {
+		return nil, err
+	}
+	return tickets, nil
 }
-func (r *MySQLTicketRepository) FindAll() ([]entity.Ticket, error) {
-	return nil, nil
+func (r *MySQLTicketRepository) FindAll() ([]*entity.Ticket, error) {
+	var tickets []*entity.Ticket
+	if err := r.db.Model(&tickets).Preload("User").Find(&tickets).Error; err != nil {
+		return nil, err
+	}
+	return tickets, nil
 }
 func (r *MySQLTicketRepository) Update(ticket *entity.Ticket) error {
+	ticket.UpdatedAt = time.Now()
+	if err := r.db.Save(ticket).Error; err != nil {
+		return err
+	}
 	return nil
 }
-func (r *MySQLTicketRepository) UpdateStatus(ticket *entity.Ticket, status string) error {
-	return nil
+func (r *MySQLTicketRepository) UpdateStatus(ticketID, status string) error {
+	return r.db.Model(&entity.Ticket{}).Where("ticked_id = ?", ticketID).Updates(map[string]interface{}{
+		"status":     status,
+		"updated_at": time.Now(),
+	}).Error
 }
-func (r *MySQLTicketRepository) Delete(id string) error {
-	return nil
+func (r *MySQLTicketRepository) Delete(ticketID string) error {
+	return r.db.Delete(&entity.Ticket{}, ticketID).Error
 }
