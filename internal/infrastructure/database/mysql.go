@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/RaflyAdiyasa/Helpdest-Ticketing-API/internal/config"
+	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/config"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

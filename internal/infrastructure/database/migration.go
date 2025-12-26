@@ -1,7 +1,7 @@
 package database
 
 import (
-	"github.com/RaflyAdiyasa/Helpdest-Ticketing-API/internal/domain/entity"
+	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 
 	"gorm.io/gorm"
 )

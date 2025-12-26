@@ -3,7 +3,7 @@ package middleware
 import (
 	"strings"
 
-	pkg "github.com/RaflyAdiyasa/Helpdest-Ticketing-API/pkg/jwt"
+	pkg "github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/pkg/jwt"
 
 	"github.com/gofiber/fiber/v2"
 )

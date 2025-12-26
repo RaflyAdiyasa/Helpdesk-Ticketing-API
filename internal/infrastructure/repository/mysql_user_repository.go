@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/RaflyAdiyasa/Helpdest-Ticketing-API/internal/domain/entity"
+	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 	"gorm.io/gorm"
 )
 
@@ -46,4 +46,12 @@ func (r *MySQLUserRepository) FindAll() ([]*entity.User, error) {
 		return nil, err
 	}
 	return users, nil
+}
+
+func (r *MySQLUserRepository) FIndByUsername(userName string) (*entity.User, error) {
+	var user entity.User
+	if err := r.db.First(&user, "user_name = ?", userName).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
