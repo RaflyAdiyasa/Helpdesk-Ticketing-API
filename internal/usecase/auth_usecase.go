@@ -1,9 +1,12 @@
 package usecase
 
 import (
-	"github.com/RaflyAdiyasa/Helpdest-Ticketing-API/internal/domain/entity"
-	"github.com/RaflyAdiyasa/Helpdest-Ticketing-API/internal/domain/repository"
-	pkg "github.com/RaflyAdiyasa/Helpdest-Ticketing-API/pkg/jwt"
+	"errors"
+
+	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
+	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/repository"
+	pkg "github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/pkg/jwt"
+	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/pkg/utils"
 )
 
 type authUseCase struct {
@@ -19,12 +22,37 @@ func NewAuthUseCase(userRepo repository.UserRepository, jwtService pkg.JWTservic
 }
 
 func (uc *authUseCase) Register(username, email, password string) (*entity.User, error) {
-	// nanti
+	existingUser, _ := uc.userRepo.FindByEmail(email)
+	if existingUser != nil {
+		return nil, errors.New("User sudah ada")
+	}
 
-	return nil, nil
+	hashedPassword, err := utils.HashPassword(password)
+	if err != nil {
+		return nil, err
+	}
+
+	user := &entity.User{
+		Username: username,
+		Email:    email,
+		Password: hashedPassword,
+		Role:     entity.RoleUser,
+	}
+	return uc.userRepo.Create(user)
 }
 
 func (uc *authUseCase) Login(username, password string) (string, error) {
-	/// nanti
-	return "huan", nil
+	user, err := uc.userRepo.FIndByUsername(username)
+	if err != nil {
+		return "", errors.New("invalid credentials: username tidak ditemukan")
+	}
+	if !utils.CheckPasswordHash(password, user.Password) {
+		return "", errors.New("invalid credentials: email tidak ditemukan")
+	}
+
+	token, err := uc.jwtService.GenerateToken(user.UserID, string(user.Role))
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }
