@@ -10,7 +10,7 @@ type AuthUseCase interface {
 }
 
 type TicketUseCase interface {
-	CreateTicket(userID, title, descriptiom string) (*entity.Ticket, error)
+	CreateTicket(userID, title, description string) (*entity.Ticket, error)
 	GetUserTickets(userID string) ([]*entity.Ticket, error)
 	GetAllTicket() ([]*entity.Ticket, error)
 	UpdateTicketStatus(ticketID, status, updatedBy string) (*entity.Ticket, error)
