@@ -50,7 +50,7 @@ func (r *MySQLUserRepository) FindAll() ([]*entity.User, error) {
 
 func (r *MySQLUserRepository) FIndByUsername(userName string) (*entity.User, error) {
 	var user entity.User
-	if err := r.db.First(&user, "user_name = ?", userName).Error; err != nil {
+	if err := r.db.First(&user, "username = ?", userName).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil

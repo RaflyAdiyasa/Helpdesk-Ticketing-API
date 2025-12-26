@@ -13,7 +13,7 @@ const (
 
 type User struct {
 	UserID       string    `gorm:"primaryKey;type:char(60)" json:"user_id"`
-	Username     string    `gorm:"uniqueIndex;size:50" json:"user_name"`
+	Username     string    `gorm:"uniqueIndex;size:50" json:"username"`
 	Email        string    `gotm:"size:40" json:"email"`
 	Password     string    `gotm:"size:60" json:"-"`
 	Role         Role      `gotm:"size:10" json:"role"`
