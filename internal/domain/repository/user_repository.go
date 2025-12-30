@@ -11,5 +11,5 @@ type UserRepository interface {
 	FIndByUsername(userName string) (*entity.User, error)
 	Update(user *entity.User) error
 	Delete(userID string) error
-	FindAll() (*[]entity.User, error)
+	FindAll() ([]*entity.User, error)
 }
