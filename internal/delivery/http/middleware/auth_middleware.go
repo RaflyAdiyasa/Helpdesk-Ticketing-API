@@ -31,7 +31,7 @@ func AuthMiddleware(jwtService pkg.JWTservice) fiber.Handler {
 			})
 		}
 
-		c.Locals("userID", int(claims["user_id"].(float64)))
+		c.Locals("userID", claims["user_id"])
 		c.Locals("userRole", claims["role"])
 
 		return c.Next()

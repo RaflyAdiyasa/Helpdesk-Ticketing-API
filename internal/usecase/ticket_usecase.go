@@ -5,6 +5,7 @@ import (
 
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/repository"
+	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/pkg/utils"
 )
 
 type ticketUseCase struct {
@@ -29,6 +30,7 @@ func (uc *ticketUseCase) CreateTicket(userID, title, description string) (*entit
 	}
 
 	ticket := &entity.Ticket{
+		TicketID:    utils.GenerateTicketID(),
 		Title:       title,
 		Description: description,
 		Status:      entity.StatusOpen,

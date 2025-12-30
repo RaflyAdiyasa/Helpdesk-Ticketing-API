@@ -33,6 +33,7 @@ func (uc *authUseCase) Register(username, email, password string) (*entity.User,
 	}
 
 	user := &entity.User{
+		UserID:   utils.GenerateUserID(string(entity.RoleUser)),
 		Username: username,
 		Email:    email,
 		Password: hashedPassword,
