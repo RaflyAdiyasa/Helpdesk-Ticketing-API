@@ -14,9 +14,9 @@ const (
 type User struct {
 	UserID       string    `gorm:"primaryKey;type:char(60)" json:"user_id"`
 	Username     string    `gorm:"uniqueIndex;size:50" json:"username"`
-	Email        string    `gotm:"size:40" json:"email"`
-	Password     string    `gotm:"size:60" json:"-"`
-	Role         Role      `gotm:"size:10" json:"role"`
+	Email        string    `gorm:"size:40" json:"email"`
+	Password     string    `gorm:"size:60" json:"-"`
+	Role         Role      `gorm:"size:10" json:"role"`
 	ProfilePict  string    `gorm:"size:255" json:"profile_pict"`
 	Department   string    `gorm:"size:40" json:"department"`
 	AccessToken  string    `gorm:"size:500" json:"-"`
@@ -26,5 +26,9 @@ type User struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 
 	//Relationship
-	Tickets []Ticket `gorm:"foreignKey:UserID" json:"tickets,omitempty"`
+	Tickets []Ticket `gorm:"foreignKey:user_id;references:user_id" json:"tickets,omitempty"`
+}
+
+func (User) TableOptions() string {
+	return "ENGINE=InnoDB"
 }

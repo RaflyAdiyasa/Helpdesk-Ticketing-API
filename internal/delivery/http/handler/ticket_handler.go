@@ -25,7 +25,20 @@ type UpdateStatusRequest struct {
 
 func (h *TicketHandler) CreateTicket(c *fiber.Ctx) error {
 	var req CreateTicketRequest
-	userId := c.Locals("UserID").(string)
+	userIdRaw := c.Locals("userID")
+	if userIdRaw == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error":  "need useer id bro",
+			"userID": userIdRaw,
+		})
+	}
+
+	userId, ok := userIdRaw.(string)
+	if !ok {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Invalid user ID format",
+		})
+	}
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -55,7 +68,7 @@ func (h *TicketHandler) GetAllTickets(c *fiber.Ctx) error {
 }
 
 func (h *TicketHandler) GetUserTickets(c *fiber.Ctx) error {
-	userId := c.Locals("UserID").(string)
+	userId := c.Locals("userID").(string)
 	tickets, err := h.ticketUsecase.GetUserTickets(userId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -66,7 +79,7 @@ func (h *TicketHandler) GetUserTickets(c *fiber.Ctx) error {
 }
 
 func (h *TicketHandler) UpdateTicketStatus(c *fiber.Ctx) error {
-	userId := c.Locals("UserID").(string)
+	userId := c.Locals("userID").(string)
 	userRole := c.Locals("userRole").(string)
 	ticketID := c.Params("id")
 	var req UpdateStatusRequest
