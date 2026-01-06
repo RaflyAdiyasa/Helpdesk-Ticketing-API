@@ -14,9 +14,11 @@ func NewAuthHandler(authUsecase usecase.AuthUseCase) *AuthHandler {
 }
 
 type RegisterRequest struct {
-	Username string `json:"username" validate:"required,min=3"`
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required,min=6"`
+	Username   string `json:"username" validate:"required,min=3"`
+	Email      string `json:"email" validate:"required,email"`
+	Password   string `json:"password" validate:"required,min=6"`
+	Department string `json:"department" validate:"required"`
+	IsRemote   bool   `json:"is_remote" validate:"required"`
 }
 
 type LoginRequest struct {
@@ -37,7 +39,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := h.authUsecase.Register(req.Username, req.Email, req.Password)
+	user, err := h.authUsecase.Register(req.Username, req.Email, req.Password, req.Department, req.IsRemote)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),

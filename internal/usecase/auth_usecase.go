@@ -21,7 +21,7 @@ func NewAuthUseCase(userRepo repository.UserRepository, jwtService pkg.JWTservic
 	}
 }
 
-func (uc *authUseCase) Register(username, email, password string) (*entity.User, error) {
+func (uc *authUseCase) Register(username, email, password, department string, isRemote bool) (*entity.User, error) {
 	existingUser, _ := uc.userRepo.FindByEmail(email)
 	if existingUser != nil {
 		return nil, errors.New("User sudah ada")
@@ -33,11 +33,13 @@ func (uc *authUseCase) Register(username, email, password string) (*entity.User,
 	}
 
 	user := &entity.User{
-		UserID:   utils.GenerateUserID(string(entity.RoleUser)),
-		Username: username,
-		Email:    email,
-		Password: hashedPassword,
-		Role:     entity.RoleUser,
+		UserID:     utils.GenerateUserID(string(entity.RoleUser)),
+		Username:   username,
+		Email:      email,
+		Password:   hashedPassword,
+		Role:       entity.RoleUser,
+		Department: department,
+		IsRemote:   isRemote,
 	}
 	return uc.userRepo.Create(user)
 }
