@@ -17,7 +17,7 @@ type Ticket struct {
 	UserID      string       `gorm:"type:char(60);not null;index" json:"user_id"`
 	Title       string       `gorm:"size:80" json:"title"`
 	Description string       `gorm:"type:text" json:"description"`
-	Status      TicketStatus `gorm:"size:10" json:"status"`
+	Status      TicketStatus `gorm:"size:20" json:"status"`
 	CreatedAt   time.Time    `json:"created_at"`
 	UpdatedAt   time.Time    `json:"updated_at"`
 	DeletedAt   *time.Time   `json:"deleted_at"`
