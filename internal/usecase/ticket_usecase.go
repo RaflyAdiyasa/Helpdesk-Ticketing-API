@@ -54,7 +54,7 @@ func (uc *ticketUseCase) UpdateTicketStatus(ticketID, status, updatedBy string) 
 		return nil, errors.New("Ticket tidak ditemukan")
 	}
 
-	user, err := uc.userRepo.FIndByUsername(updatedBy)
+	user, err := uc.userRepo.FindByID(updatedBy)
 	if err != nil || user.Role != entity.RoleAdmin {
 		return nil, errors.New("unauthorized")
 	}
