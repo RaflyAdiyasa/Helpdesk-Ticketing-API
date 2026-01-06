@@ -99,7 +99,19 @@ func (h *TicketHandler) UpdateTicketStatus(c *fiber.Ctx) error {
 		})
 	}
 
-	ticket, err := h.ticketUsecase.UpdateTicketStatus(ticketID, string(req.Status), userId)
+	validStatus := map[string]bool{
+		string(entity.StatusDone):       true,
+		string(entity.StatusInProgress): true,
+		string(entity.StatusOpen):       true,
+	}
+
+	if !validStatus[string(req.Status)] {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Status must be  'DONE' or 'IN_PROGRESS'",
+		})
+	}
+
+	ticket, err := h.ticketUsecase.UpdateTicketStatus(ticketID, userId, entity.TicketStatus(req.Status))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),

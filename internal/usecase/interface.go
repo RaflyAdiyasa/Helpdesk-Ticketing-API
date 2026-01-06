@@ -13,5 +13,5 @@ type TicketUseCase interface {
 	CreateTicket(userID, title, description string) (*entity.Ticket, error)
 	GetUserTickets(userID string) ([]*entity.Ticket, error)
 	GetAllTicket() ([]*entity.Ticket, error)
-	UpdateTicketStatus(ticketID, status, updatedBy string) (*entity.Ticket, error)
+	UpdateTicketStatus(ticketID, updatedBy string, status entity.TicketStatus) (*entity.Ticket, error)
 }

@@ -10,6 +10,6 @@ type TicketRepositoy interface {
 	FindByUserID(id string) ([]*entity.Ticket, error)
 	FindAll() ([]*entity.Ticket, error)
 	Update(ticket *entity.Ticket) error
-	UpdateStatus(ticketID, status string) error
+	UpdateStatus(ticketID string, status entity.TicketStatus) error
 	Delete(id string) error
 }

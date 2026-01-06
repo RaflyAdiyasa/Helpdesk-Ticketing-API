@@ -48,7 +48,7 @@ func (uc *ticketUseCase) GetAllTicket() ([]*entity.Ticket, error) {
 	return uc.ticketRepo.FindAll()
 }
 
-func (uc *ticketUseCase) UpdateTicketStatus(ticketID, status, updatedBy string) (*entity.Ticket, error) {
+func (uc *ticketUseCase) UpdateTicketStatus(ticketID, updatedBy string, status entity.TicketStatus) (*entity.Ticket, error) {
 	_, err := uc.ticketRepo.FindByID(ticketID)
 	if err != nil {
 		return nil, errors.New("Ticket tidak ditemukan")

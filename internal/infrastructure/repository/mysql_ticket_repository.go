@@ -49,7 +49,7 @@ func (r *MySQLTicketRepository) Update(ticket *entity.Ticket) error {
 	}
 	return nil
 }
-func (r *MySQLTicketRepository) UpdateStatus(ticketID, status string) error {
+func (r *MySQLTicketRepository) UpdateStatus(ticketID string, status entity.TicketStatus) error {
 	return r.db.Model(&entity.Ticket{}).Where("ticket_id = ?", ticketID).Updates(map[string]interface{}{
 		"status":     status,
 		"updated_at": time.Now(),
