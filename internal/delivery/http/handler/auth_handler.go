@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"strconv"
+
+	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/usecase"
 	"github.com/gofiber/fiber/v2"
 )
@@ -18,7 +21,8 @@ type RegisterRequest struct {
 	Email      string `json:"email" validate:"required,email"`
 	Password   string `json:"password" validate:"required,min=6"`
 	Department string `json:"department" validate:"required"`
-	IsRemote   bool   `json:"is_remote" validate:"required"`
+	IsRemote   string `json:"is_remote" validate:"required"`
+	Role       string `json:"role" validate:"required"`
 }
 
 type LoginRequest struct {
@@ -35,11 +39,24 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req RegisterRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
+			"error": "Invalid request body -a",
 		})
 	}
 
-	user, err := h.authUsecase.Register(req.Username, req.Email, req.Password, req.Department, req.IsRemote)
+	validRoles := map[string]bool{
+		string(entity.RoleUser):  true,
+		string(entity.RoleAdmin): true,
+	}
+
+	if !validRoles[req.Role] {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Role must be either 'ADMIN' or 'USER'",
+		})
+	}
+
+	is_remote, err := strconv.ParseBool(req.IsRemote)
+
+	user, err := h.authUsecase.Register(req.Username, req.Email, req.Password, req.Department, entity.Role(req.Role), is_remote)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),
@@ -71,3 +88,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		"token": token,
 	})
 }
+
+// func (h *AuthHandler) DefaultAdmin(username, password string) {
+// 	h.authUsecase.
+
+// }

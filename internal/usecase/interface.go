@@ -5,7 +5,7 @@ import (
 )
 
 type AuthUseCase interface {
-	Register(username, email, password, department string, isRemote bool) (*entity.User, error)
+	Register(username, email, password, department string, role entity.Role, isRemote bool) (*entity.User, error)
 	Login(username, password string) (string, error)
 }
 

@@ -1,0 +1,7 @@
+.env
+
+test/*
+test/unit_test.go
+test/
+
+cmd/api/.env
