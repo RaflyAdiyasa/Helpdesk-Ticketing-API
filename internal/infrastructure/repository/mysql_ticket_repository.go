@@ -23,7 +23,7 @@ func (r *MySQLTicketRepository) Create(ticket *entity.Ticket) (*entity.Ticket, e
 }
 func (r *MySQLTicketRepository) FindByID(id string) (*entity.Ticket, error) {
 	var ticket entity.Ticket
-	if err := r.db.Preload("User").First(&ticket, "ticked_id = ?", id).Error; err != nil {
+	if err := r.db.Preload("Owner").First(&ticket, "ticked_id = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return &ticket, nil
@@ -37,7 +37,7 @@ func (r *MySQLTicketRepository) FindByUserID(userID string) ([]*entity.Ticket, e
 }
 func (r *MySQLTicketRepository) FindAll() ([]*entity.Ticket, error) {
 	var tickets []*entity.Ticket
-	if err := r.db.Model(&tickets).Preload("User").Find(&tickets).Error; err != nil {
+	if err := r.db.Model(&tickets).Preload("Owner").Find(&tickets).Error; err != nil {
 		return nil, err
 	}
 	return tickets, nil
