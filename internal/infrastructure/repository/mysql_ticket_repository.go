@@ -23,7 +23,7 @@ func (r *MySQLTicketRepository) Create(ticket *entity.Ticket) (*entity.Ticket, e
 }
 func (r *MySQLTicketRepository) FindByID(id string) (*entity.Ticket, error) {
 	var ticket entity.Ticket
-	if err := r.db.Preload("Owner").First(&ticket, "ticked_id = ?", id).Error; err != nil {
+	if err := r.db.Preload("Owner").First(&ticket, "ticket_id = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return &ticket, nil
