@@ -64,7 +64,10 @@ func (h *TicketHandler) GetAllTickets(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	return c.JSON(tickets)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"Jumlah":  len(tickets),
+		"tickets": tickets,
+	})
 }
 
 func (h *TicketHandler) GetUserTickets(c *fiber.Ctx) error {
@@ -103,6 +106,9 @@ func (h *TicketHandler) UpdateTicketStatus(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(ticket)
+	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{
+		"message": "update success",
+		"ticket":  ticket,
+	})
 
 }
