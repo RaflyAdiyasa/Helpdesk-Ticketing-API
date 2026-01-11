@@ -344,7 +344,7 @@ Content-Type: application/json
 Headers: Authorization: Bearer <token>
 
 {
-    "status":"OPEN"
+    "status":"DONE" //DONE , OPEN , or IN_PROGRESS
 }
 
 ```
