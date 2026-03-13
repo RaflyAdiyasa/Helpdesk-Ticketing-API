@@ -3,6 +3,9 @@ package config
 import (
 	"os"
 	"time"
+
+	"github.com/gofiber/fiber/v2/log"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -30,6 +33,10 @@ func getEnv(key, defaultValue string) string {
 }
 
 func LoadConfig() *Config {
+	err := godotenv.Load()
+	if err != nil {
+		log.Error("file env tidak ditemukan , menggunakan env default !")
+	}
 	cfg := &Config{}
 
 	cfg.Server.Port = getEnv("PORT", "8080")
