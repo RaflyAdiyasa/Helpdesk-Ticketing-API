@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"mime/multipart"
@@ -73,11 +74,42 @@ func buildTicketImageObjectName(ticketID, filename string) string {
 }
 
 func (uc *ticketUseCase) GetUserTickets(userID string) ([]*entity.Ticket, error) {
-	return uc.ticketRepo.FindByUserID(userID)
+	tickets, err := uc.ticketRepo.FindByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, ticket := range tickets {
+		if ticket.Image != "" {
+			imageURL, err := uc.fileRepo.GetPresignedURL(context.Background(), ticket.Image)
+			if err != nil {
+				return nil, err
+			}
+
+			ticket.Image = imageURL
+		}
+	}
+	return tickets, nil
 }
 
 func (uc *ticketUseCase) GetAllTicket() ([]*entity.Ticket, error) {
-	return uc.ticketRepo.FindAll()
+	tickets, err := uc.ticketRepo.FindAll()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, ticket := range tickets {
+		if ticket.Image != "" {
+			imageURL, err := uc.fileRepo.GetPresignedURL(context.Background(), ticket.Image)
+			if err != nil {
+				return nil, err
+			}
+
+			ticket.Image = imageURL
+		}
+	}
+
+	return tickets, nil
 }
 
 func (uc *ticketUseCase) UpdateTicketStatus(ticketID, updatedBy string, status entity.TicketStatus) (*entity.Ticket, error) {

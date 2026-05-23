@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"mime/multipart"
+	"net/url"
+	"time"
 
 	"github.com/minio/minio-go/v7"
 )
@@ -56,4 +58,23 @@ func (r *MinioRepository) Upload(file multipart.File, objectName string, size in
 	}
 
 	return info.Key, nil
+}
+
+func (r *MinioRepository) GetPresignedURL(ctx context.Context, objectName string) (string, error) {
+	expiry := 15 * time.Minute
+
+	reqParams := make(url.Values)
+
+	presignedURL, err := r.client.PresignedGetObject(
+		ctx,
+		r.bucket,
+		objectName,
+		expiry,
+		reqParams,
+	)
+	if err != nil {
+		return "", err
+	}
+
+	return presignedURL.String(), nil
 }
