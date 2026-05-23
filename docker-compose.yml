@@ -12,6 +12,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-helpdesk_password}
       JWT_SECRET: ${JWT_SECRET:-change-this-secret}
       MINIO_ENDPOINT: minio:9000
+      MINIO_PUBLIC_ENDPOINT: localhost:9000
       MINIO_ACCESSKEY: ${MINIO_ACCESSKEY:-minioadmin}
       MINIO_SECRETKEY: ${MINIO_SECRETKEY:-minioadmin123}
       MINIO_BUCKETNAME: ${MINIO_BUCKETNAME:-uploads}

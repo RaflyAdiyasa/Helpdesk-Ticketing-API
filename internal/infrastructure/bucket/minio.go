@@ -12,8 +12,10 @@ var bucketName = "uploads"
 func InitMinio(endpoint, accessKey, secretKey string) *minio.Client {
 
 	minioClient, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-		Secure: false,
+		Creds:        credentials.NewStaticV4(accessKey, secretKey, ""),
+		Secure:       false,
+		Region:       "us-east-1",
+		BucketLookup: minio.BucketLookupPath,
 	})
 
 	if err != nil {

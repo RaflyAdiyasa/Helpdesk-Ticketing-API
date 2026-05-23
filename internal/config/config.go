@@ -20,11 +20,13 @@ type Config struct {
 		Name     string
 	}
 	Minio struct {
-		Endpoint   string
-		AccessKey  string
-		SecretKey  string
-		BucketName string
+		Endpoint       string
+		PublicEndpoint string
+		AccessKey      string
+		SecretKey      string
+		BucketName     string
 	}
+
 	JWT struct {
 		Secret string
 		Expiry time.Duration
@@ -56,7 +58,8 @@ func LoadConfig() *Config {
 	cfg.JWT.Secret = getEnv("JWT_SECRET", "indianman")
 	cfg.JWT.Expiry = 12 * time.Hour
 
-	cfg.Minio.Endpoint = getEnv("MINIO_ENDPOINT", "localhost:9000")
+	cfg.Minio.Endpoint = getEnv("MINIO_ENDPOINT", "minio:9000")
+	cfg.Minio.PublicEndpoint = getEnv("MINIO_PUBLIC_ENDPOINT", "localhost:9000")
 	cfg.Minio.AccessKey = getEnv("MINIO_ACCESSKEY", "minioadmin")
 	cfg.Minio.SecretKey = getEnv("MINIO_SECRETKEY", "minioadmin123")
 	cfg.Minio.BucketName = getEnv("MINIO_BUCKETNAME", "uploads")

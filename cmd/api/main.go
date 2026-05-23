@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/config"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/delivery/http/handler"
@@ -17,7 +18,12 @@ import (
 
 func main() {
 	cfg := config.LoadConfig()
-	bucket := bucket.InitMinio(cfg.Minio.Endpoint, cfg.Minio.AccessKey, cfg.Minio.SecretKey)
+
+	log.Printf("MINIO_ENDPOINT=%s", os.Getenv("MINIO_ENDPOINT"))
+	log.Printf("MINIO_PUBLIC_ENDPOINT=%s", os.Getenv("MINIO_PUBLIC_ENDPOINT"))
+
+	internalMinioClient := bucket.InitMinio(cfg.Minio.Endpoint, cfg.Minio.AccessKey, cfg.Minio.SecretKey)
+	publicMinioClient := bucket.InitMinio(cfg.Minio.PublicEndpoint, cfg.Minio.AccessKey, cfg.Minio.SecretKey)
 
 	db, err := database.NewMySQLConnection(*cfg)
 	if err != nil {
@@ -32,7 +38,7 @@ func main() {
 
 	userRepo := repository.NewMySQLUserRepository(db)
 	ticketRepo := repository.NewMySQLTicketRepository(db)
-	fileRepo := repository.NewMinioRepository(bucket, cfg.Minio.BucketName)
+	fileRepo := repository.NewMinioRepository(internalMinioClient, publicMinioClient, cfg.Minio.BucketName)
 
 	authUsecase := usecase.NewAuthUseCase(userRepo, jwtService)
 	ticketUsecase := usecase.NewTicketUseCase(ticketRepo, userRepo, fileRepo)

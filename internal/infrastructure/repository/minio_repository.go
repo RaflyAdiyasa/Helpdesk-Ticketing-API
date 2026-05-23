@@ -11,19 +11,21 @@ import (
 )
 
 type MinioRepository struct {
-	client *minio.Client
-	bucket string
+	internalClient *minio.Client
+	publicClient   *minio.Client
+	bucket         string
 }
 
-func NewMinioRepository(client *minio.Client, bucket string) *MinioRepository {
+func NewMinioRepository(internalClient *minio.Client, publicClient *minio.Client, bucket string) *MinioRepository {
 	return &MinioRepository{
-		client: client,
-		bucket: bucket,
+		internalClient: internalClient,
+		publicClient:   publicClient,
+		bucket:         bucket,
 	}
 }
 
 func (r *MinioRepository) Upload(file multipart.File, objectName string, size int64, contentType string) (string, error) {
-	if r.client == nil {
+	if r.internalClient == nil {
 		return "", fmt.Errorf("minio client is not initialized")
 	}
 
@@ -33,18 +35,18 @@ func (r *MinioRepository) Upload(file multipart.File, objectName string, size in
 
 	ctx := context.Background()
 
-	exists, err := r.client.BucketExists(ctx, r.bucket)
+	exists, err := r.internalClient.BucketExists(ctx, r.bucket)
 	if err != nil {
 		return "", err
 	}
 
 	if !exists {
-		if err := r.client.MakeBucket(ctx, r.bucket, minio.MakeBucketOptions{}); err != nil {
+		if err := r.internalClient.MakeBucket(ctx, r.bucket, minio.MakeBucketOptions{}); err != nil {
 			return "", err
 		}
 	}
 
-	info, err := r.client.PutObject(
+	info, err := r.internalClient.PutObject(
 		ctx,
 		r.bucket,
 		objectName,
@@ -65,7 +67,7 @@ func (r *MinioRepository) GetPresignedURL(ctx context.Context, objectName string
 
 	reqParams := make(url.Values)
 
-	presignedURL, err := r.client.PresignedGetObject(
+	presignedURL, err := r.publicClient.PresignedGetObject(
 		ctx,
 		r.bucket,
 		objectName,
