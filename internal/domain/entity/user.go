@@ -25,8 +25,8 @@ type User struct {
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 
-	//Relationship
-	Tickets []Ticket `gorm:"foreignKey:user_id;references:user_id" json:"tickets,omitempty"`
+	// Relationship
+	Tickets []Ticket `gorm:"foreignKey:UserID;references:UserID" json:"tickets,omitempty"`
 }
 
 func (User) TableOptions() string {

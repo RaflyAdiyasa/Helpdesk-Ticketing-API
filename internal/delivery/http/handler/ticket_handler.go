@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"mime/multipart"
+	"strings"
+
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/usecase"
 	"github.com/gofiber/fiber/v2"
@@ -15,8 +18,9 @@ func NewTicketHandler(ticketUsecase usecase.TicketUseCase) *TicketHandler {
 }
 
 type CreateTicketRequest struct {
-	Title       string `json:"title" validate:"required"`
-	Description string `json:"description" validate:"required"`
+	Title       string `json:"title" form:"title" validate:"required"`
+	Image       string `json:"image" form:"image"`
+	Description string `json:"description" form:"description" validate:"required"`
 }
 
 type UpdateStatusRequest struct {
@@ -25,6 +29,9 @@ type UpdateStatusRequest struct {
 
 func (h *TicketHandler) CreateTicket(c *fiber.Ctx) error {
 	var req CreateTicketRequest
+	var imageFile multipart.File
+	var imageHeader *multipart.FileHeader
+
 	userIdRaw := c.Locals("userID")
 	if userIdRaw == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -40,13 +47,39 @@ func (h *TicketHandler) CreateTicket(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
-		})
+	if isMultipartRequest(c) {
+		req.Title = c.FormValue("title")
+		req.Description = c.FormValue("description")
+		req.Image = c.FormValue("image")
+
+		var err error
+		imageHeader, err = getOptionalFormFile(c, "image", "file")
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid multipart form",
+			})
+		}
+
+		if imageHeader != nil {
+			imageFile, err = imageHeader.Open()
+			if err != nil {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"error": "Failed to read uploaded image",
+				})
+			}
+			defer imageFile.Close()
+		}
+	} else {
+		if err := c.BodyParser(&req); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid request body",
+			})
+		}
 	}
 
-	ticket, err := h.ticketUsecase.CreateTicket(userId, req.Title, req.Description)
+	imageFilename, imageSize, imageContentType := uploadedFileMetadata(imageHeader)
+
+	ticket, err := h.ticketUsecase.CreateTicket(userId, req.Title, req.Description, req.Image, imageFile, imageFilename, imageSize, imageContentType)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),
@@ -55,6 +88,39 @@ func (h *TicketHandler) CreateTicket(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(ticket)
 
+}
+
+func isMultipartRequest(c *fiber.Ctx) bool {
+	return strings.Contains(strings.ToLower(c.Get("Content-Type")), "multipart/form-data")
+}
+
+func getOptionalFormFile(c *fiber.Ctx, names ...string) (*multipart.FileHeader, error) {
+	form, err := c.MultipartForm()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, name := range names {
+		files := form.File[name]
+		if len(files) > 0 {
+			return files[0], nil
+		}
+	}
+
+	return nil, nil
+}
+
+func uploadedFileMetadata(fileHeader *multipart.FileHeader) (string, int64, string) {
+	if fileHeader == nil {
+		return "", 0, ""
+	}
+
+	contentType := fileHeader.Header.Get("Content-Type")
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+
+	return fileHeader.Filename, fileHeader.Size, contentType
 }
 
 func (h *TicketHandler) GetAllTickets(c *fiber.Ctx) error {

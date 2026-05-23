@@ -8,6 +8,8 @@ import (
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/delivery/http/middleware"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/infrastructure/database"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/infrastructure/repository"
+
+	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/infrastructure/bucket"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/usecase"
 	pkg "github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/pkg/jwt"
 	"github.com/gofiber/fiber/v2"
@@ -15,21 +17,25 @@ import (
 
 func main() {
 	cfg := config.LoadConfig()
+	bucket := bucket.InitMinio(cfg.Minio.Endpoint, cfg.Minio.AccessKey, cfg.Minio.SecretKey)
 
 	db, err := database.NewMySQLConnection(*cfg)
 	if err != nil {
 		log.Fatal("Failed to connect to database : ", err)
 	}
 
-	database.RunMigrations(db)
+	if err := database.RunMigrations(db); err != nil {
+		log.Fatal("Failed to run database migrations: ", err)
+	}
 
 	jwtService := pkg.NewJWTservice(cfg.JWT.Secret, cfg.JWT.Expiry)
 
 	userRepo := repository.NewMySQLUserRepository(db)
 	ticketRepo := repository.NewMySQLTicketRepository(db)
+	fileRepo := repository.NewMinioRepository(bucket, cfg.Minio.BucketName)
 
 	authUsecase := usecase.NewAuthUseCase(userRepo, jwtService)
-	ticketUsecase := usecase.NewTicketUseCase(ticketRepo, userRepo)
+	ticketUsecase := usecase.NewTicketUseCase(ticketRepo, userRepo, fileRepo)
 
 	authHandler := handler.NewAuthHandler(authUsecase)
 	ticketHandler := handler.NewTicketHandler(ticketUsecase)

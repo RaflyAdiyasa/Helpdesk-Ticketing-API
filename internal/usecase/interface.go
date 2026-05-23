@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"mime/multipart"
+
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 )
 
@@ -10,8 +12,12 @@ type AuthUseCase interface {
 }
 
 type TicketUseCase interface {
-	CreateTicket(userID, title, description string) (*entity.Ticket, error)
+	CreateTicket(userID, title, description, image string, imageFile multipart.File, imageFilename string, imageSize int64, imageContentType string) (*entity.Ticket, error)
 	GetUserTickets(userID string) ([]*entity.Ticket, error)
 	GetAllTicket() ([]*entity.Ticket, error)
 	UpdateTicketStatus(ticketID, updatedBy string, status entity.TicketStatus) (*entity.Ticket, error)
 }
+
+// type BucketUseCase interface {
+// 	UploadImage()
+// }

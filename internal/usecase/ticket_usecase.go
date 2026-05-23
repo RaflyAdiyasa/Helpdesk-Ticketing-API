@@ -2,6 +2,10 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
+	"mime/multipart"
+	"path"
+	"strings"
 
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/repository"
@@ -11,16 +15,18 @@ import (
 type ticketUseCase struct {
 	ticketRepo repository.TicketRepositoy
 	userRepo   repository.UserRepository
+	fileRepo   repository.FileRepository
 }
 
-func NewTicketUseCase(ticketRepo repository.TicketRepositoy, userRepo repository.UserRepository) TicketUseCase {
+func NewTicketUseCase(ticketRepo repository.TicketRepositoy, userRepo repository.UserRepository, fileRepo repository.FileRepository) TicketUseCase {
 	return &ticketUseCase{
 		ticketRepo: ticketRepo,
 		userRepo:   userRepo,
+		fileRepo:   fileRepo,
 	}
 }
 
-func (uc *ticketUseCase) CreateTicket(userID, title, description string) (*entity.Ticket, error) {
+func (uc *ticketUseCase) CreateTicket(userID, title, description, image string, imageFile multipart.File, imageFilename string, imageSize int64, imageContentType string) (*entity.Ticket, error) {
 	if title == "" {
 		return nil, errors.New("title is required")
 	}
@@ -29,15 +35,41 @@ func (uc *ticketUseCase) CreateTicket(userID, title, description string) (*entit
 		return nil, errors.New("descripton is empty")
 	}
 
+	ticketID := utils.GenerateTicketID()
+
+	if imageFile != nil {
+		if uc.fileRepo == nil {
+			return nil, errors.New("file repository is not configured")
+		}
+
+		objectName := buildTicketImageObjectName(ticketID, imageFilename)
+		uploadedImage, err := uc.fileRepo.Upload(imageFile, objectName, imageSize, imageContentType)
+		if err != nil {
+			return nil, fmt.Errorf("failed to upload image: %w", err)
+		}
+		image = uploadedImage
+	}
+
 	ticket := &entity.Ticket{
-		TicketID:    utils.GenerateTicketID(),
+		TicketID:    ticketID,
 		Title:       title,
 		Description: description,
 		Status:      entity.StatusOpen,
 		UserID:      userID,
+		Image:       image,
 	}
 	return uc.ticketRepo.Create(ticket)
 
+}
+
+func buildTicketImageObjectName(ticketID, filename string) string {
+	normalizedFilename := strings.ReplaceAll(filename, "\\", "/")
+	ext := strings.ToLower(path.Ext(normalizedFilename))
+	if ext == "" {
+		ext = ".bin"
+	}
+
+	return fmt.Sprintf("tickets/%s/%s%s", ticketID, utils.GeneratePrefixedUUID("image"), ext)
 }
 
 func (uc *ticketUseCase) GetUserTickets(userID string) ([]*entity.Ticket, error) {

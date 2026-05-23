@@ -17,15 +17,14 @@ type Ticket struct {
 	UserID      string       `gorm:"type:char(60);not null;index" json:"user_id"`
 	Title       string       `gorm:"size:80" json:"title"`
 	Description string       `gorm:"type:text" json:"description"`
+	Image       string       `gorm:"size:255" json:"image"`
 	Status      TicketStatus `gorm:"size:20" json:"status"`
 	CreatedAt   time.Time    `json:"created_at"`
 	UpdatedAt   time.Time    `json:"updated_at"`
 	DeletedAt   *time.Time   `json:"deleted_at"`
 
-	//Relationship
-	Owner *User `gorm:"foreignKey:user_id;references:user_id" json:"owner"`
-
-	//TO-DO : Images
+	// Relationship
+	Owner *User `gorm:"foreignKey:UserID;references:UserID" json:"owner"`
 }
 
 func (Ticket) TableOptions() string {

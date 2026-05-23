@@ -19,6 +19,12 @@ type Config struct {
 		Password string
 		Name     string
 	}
+	Minio struct {
+		Endpoint   string
+		AccessKey  string
+		SecretKey  string
+		BucketName string
+	}
 	JWT struct {
 		Secret string
 		Expiry time.Duration
@@ -35,7 +41,7 @@ func getEnv(key, defaultValue string) string {
 func LoadConfig() *Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Error("file env tidak ditemukan , menggunakan env default !")
+		log.Warn(".env file not found, using environment variables or defaults")
 	}
 	cfg := &Config{}
 
@@ -43,12 +49,17 @@ func LoadConfig() *Config {
 
 	cfg.DB.Host = getEnv("DB_HOST", "localhost")
 	cfg.DB.Port = getEnv("DB_PORT", "3306")
-	cfg.DB.User = getEnv("DB_USER", "huanlocal")
-	cfg.DB.Password = getEnv("DB_PASSWORD", "pass123")
-	cfg.DB.Name = getEnv("DB_NAME", "be")
+	cfg.DB.User = getEnv("DB_USER", "helpdesk")
+	cfg.DB.Password = getEnv("DB_PASSWORD", "helpdesk_password")
+	cfg.DB.Name = getEnv("DB_NAME", "helpdesk")
 
 	cfg.JWT.Secret = getEnv("JWT_SECRET", "indianman")
 	cfg.JWT.Expiry = 12 * time.Hour
+
+	cfg.Minio.Endpoint = getEnv("MINIO_ENDPOINT", "localhost:9000")
+	cfg.Minio.AccessKey = getEnv("MINIO_ACCESSKEY", "minioadmin")
+	cfg.Minio.SecretKey = getEnv("MINIO_SECRETKEY", "minioadmin123")
+	cfg.Minio.BucketName = getEnv("MINIO_BUCKETNAME", "uploads")
 
 	return cfg
 }
