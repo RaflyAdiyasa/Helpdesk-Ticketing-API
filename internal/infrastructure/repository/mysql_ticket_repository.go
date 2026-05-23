@@ -30,7 +30,7 @@ func (r *MySQLTicketRepository) FindByID(id string) (*entity.Ticket, error) {
 }
 func (r *MySQLTicketRepository) FindByUserID(userID string) ([]*entity.Ticket, error) {
 	var tickets []*entity.Ticket
-	if err := r.db.Model(&tickets).Find(&tickets, "user_id = ?", userID).Error; err != nil {
+	if err := r.db.Preload("Owner").Find(&tickets, "user_id = ?", userID).Error; err != nil {
 		return nil, err
 	}
 	return tickets, nil
