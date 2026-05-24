@@ -70,6 +70,16 @@ services:
         sleep 2;
       done;
       mc mb --ignore-existing local/$${MINIO_BUCKETNAME};
+          cat > /tmp/cors.json <<EOF
+         [
+      {
+        \"AllowedOrigins\": [\"http://localhost:5173\"],
+        \"AllowedMethods\": [\"GET\", \"PUT\", \"POST\", \"DELETE\"],
+        \"AllowedHeaders\": [\"*\"],
+        \"ExposeHeaders\": [\"ETag\"]
+      }
+         ]
+         EOF
       "
 
 volumes:

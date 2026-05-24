@@ -3,7 +3,7 @@ module github.com/RaflyAdiyasa/Helpdesk-Ticketing-API
 go 1.25.5
 
 require (
-	github.com/gofiber/fiber/v2 v2.52.10
+	github.com/gofiber/fiber/v2 v2.52.13
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	golang.org/x/crypto v0.46.0
 	gorm.io/driver/mysql v1.6.0
