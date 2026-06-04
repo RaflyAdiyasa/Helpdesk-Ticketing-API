@@ -50,7 +50,7 @@ func (uc *authUseCase) Login(username, password string) (string, error) {
 		return "", errors.New("invalid credentials: username tidak ditemukan")
 	}
 	if !utils.CheckPasswordHash(password, user.Password) {
-		return "", errors.New("invalid credentials: email tidak ditemukan")
+		return "", errors.New("invalid credentials: username dan password tidak sesuai")
 	}
 
 	token, err := uc.jwtService.GenerateToken(user.UserID, string(user.Role))

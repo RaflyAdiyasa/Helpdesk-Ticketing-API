@@ -26,6 +26,10 @@ type Config struct {
 		SecretKey      string
 		BucketName     string
 	}
+	Redis struct {
+		Endpoint string
+		DB       string
+	}
 
 	JWT struct {
 		Secret string
@@ -63,6 +67,9 @@ func LoadConfig() *Config {
 	cfg.Minio.AccessKey = getEnv("MINIO_ACCESSKEY", "minioadmin")
 	cfg.Minio.SecretKey = getEnv("MINIO_SECRETKEY", "minioadmin123")
 	cfg.Minio.BucketName = getEnv("MINIO_BUCKETNAME", "uploads")
+
+	cfg.Redis.DB = getEnv("REDIS_DB", "8")
+	cfg.Redis.Endpoint = getEnv("REDIS_ENDPOINT", "localhost:6379")
 
 	return cfg
 }
