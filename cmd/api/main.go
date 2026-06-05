@@ -72,6 +72,7 @@ func main() {
 	adminGroup := ticketGroup.Group("/admin")
 	adminGroup.Use(middleware.RequireRole("ADMIN"))
 	adminGroup.Get("/all", ticketHandler.GetAllTickets)
+	adminGroup.Get("/dashboard", ticketHandler.GetDasboardOverview)
 	adminGroup.Put("/:id/status", ticketHandler.UpdateTicketStatus)
 
 	log.Printf("Server starting on port %s", cfg.Server.Port)
