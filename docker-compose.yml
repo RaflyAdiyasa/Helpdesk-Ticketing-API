@@ -16,11 +16,15 @@ services:
       MINIO_ACCESSKEY: ${MINIO_ACCESSKEY:-minioadmin}
       MINIO_SECRETKEY: ${MINIO_SECRETKEY:-minioadmin123}
       MINIO_BUCKETNAME: ${MINIO_BUCKETNAME:-uploads}
+      REDIS_ENDPOINT: redis:6379
+      REDIS_DB: 8
     ports:
       - "${PORT:-8080}:${PORT:-8080}"
     depends_on:
       mysql:
         condition: service_healthy
+      redis:
+        condition: service_started
       minio-init:
         condition: service_completed_successfully
     restart: unless-stopped
@@ -41,6 +45,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
     restart: unless-stopped
 
   minio:
@@ -70,18 +83,9 @@ services:
         sleep 2;
       done;
       mc mb --ignore-existing local/$${MINIO_BUCKETNAME};
-          cat > /tmp/cors.json <<EOF
-         [
-      {
-        \"AllowedOrigins\": [\"http://localhost:5173\"],
-        \"AllowedMethods\": [\"GET\", \"PUT\", \"POST\", \"DELETE\"],
-        \"AllowedHeaders\": [\"*\"],
-        \"ExposeHeaders\": [\"ETag\"]
-      }
-         ]
-         EOF
       "
 
 volumes:
   mysql_data:
   minio_data:
+  redis_data:

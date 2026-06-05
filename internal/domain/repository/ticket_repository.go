@@ -15,4 +15,8 @@ type TicketRepositoy interface {
 	Delete(id string) error
 
 	GetSumary() (*dto.DashboardSummary, error)
+	// GetTicketTrend()
+	// GetStatusDistribution()
+	// GetTopReporters()
+	// GetAverageResolutionHours()
 }
