@@ -17,13 +17,15 @@ type ticketUseCase struct {
 	ticketRepo repository.TicketRepositoy
 	userRepo   repository.UserRepository
 	fileRepo   repository.FileRepository
+	cacheRepo  repository.CacheRepository
 }
 
-func NewTicketUseCase(ticketRepo repository.TicketRepositoy, userRepo repository.UserRepository, fileRepo repository.FileRepository) TicketUseCase {
+func NewTicketUseCase(ticketRepo repository.TicketRepositoy, userRepo repository.UserRepository, fileRepo repository.FileRepository, cacheRepo repository.CacheRepository) TicketUseCase {
 	return &ticketUseCase{
 		ticketRepo: ticketRepo,
 		userRepo:   userRepo,
 		fileRepo:   fileRepo,
+		cacheRepo:  cacheRepo,
 	}
 }
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/config"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/delivery/http/handler"
@@ -20,9 +19,6 @@ import (
 func main() {
 	cfg := config.LoadConfig()
 
-	log.Printf("MINIO_ENDPOINT=%s", os.Getenv("MINIO_ENDPOINT"))
-	log.Printf("MINIO_PUBLIC_ENDPOINT=%s", os.Getenv("MINIO_PUBLIC_ENDPOINT"))
-
 	internalMinioClient := bucket.InitMinio(cfg.Minio.Endpoint, cfg.Minio.AccessKey, cfg.Minio.SecretKey)
 	publicMinioClient := bucket.InitMinio(cfg.Minio.PublicEndpoint, cfg.Minio.AccessKey, cfg.Minio.SecretKey)
 
@@ -35,14 +31,22 @@ func main() {
 		log.Fatal("Failed to run database migrations: ", err)
 	}
 
+	cache, err := database.NewRedisClient(*cfg)
+	if cache != nil {
+		log.Println("Berhasil Terhubung ke Redis")
+	} else {
+		log.Panicln("Damn gak berhasil connect Redis")
+	}
+
 	jwtService := pkg.NewJWTservice(cfg.JWT.Secret, cfg.JWT.Expiry)
 
 	userRepo := repository.NewMySQLUserRepository(db)
 	ticketRepo := repository.NewMySQLTicketRepository(db)
 	fileRepo := repository.NewMinioRepository(internalMinioClient, publicMinioClient, cfg.Minio.BucketName)
+	cacheRepo := repository.NewRedisRepository(cache)
 
 	authUsecase := usecase.NewAuthUseCase(userRepo, jwtService)
-	ticketUsecase := usecase.NewTicketUseCase(ticketRepo, userRepo, fileRepo)
+	ticketUsecase := usecase.NewTicketUseCase(ticketRepo, userRepo, fileRepo, cacheRepo)
 
 	authHandler := handler.NewAuthHandler(authUsecase)
 	ticketHandler := handler.NewTicketHandler(ticketUsecase)

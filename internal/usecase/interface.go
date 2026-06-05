@@ -17,7 +17,3 @@ type TicketUseCase interface {
 	GetAllTicket() ([]*entity.Ticket, error)
 	UpdateTicketStatus(ticketID, updatedBy string, status entity.TicketStatus) (*entity.Ticket, error)
 }
-
-// type BucketUseCase interface {
-// 	UploadImage()
-// }
