@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/dto"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 )
 
@@ -12,4 +13,6 @@ type TicketRepositoy interface {
 	Update(ticket *entity.Ticket) error
 	UpdateStatus(ticketID string, status entity.TicketStatus) error
 	Delete(id string) error
+
+	GetSumary() (*dto.DashboardSummary, error)
 }

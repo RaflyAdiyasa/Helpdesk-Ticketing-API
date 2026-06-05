@@ -2,12 +2,15 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"mime/multipart"
 	"path"
 	"strings"
+	"time"
 
+	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/dto"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/repository"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/pkg/utils"
@@ -61,6 +64,8 @@ func (uc *ticketUseCase) CreateTicket(userID, title, description, image string, 
 		UserID:      userID,
 		Image:       image,
 	}
+	ctx := context.Background()
+	_ = uc.cacheRepo.Delete(ctx, "dashboard:overview")
 	return uc.ticketRepo.Create(ticket)
 
 }
@@ -128,7 +133,45 @@ func (uc *ticketUseCase) UpdateTicketStatus(ticketID, updatedBy string, status e
 	if err := uc.ticketRepo.UpdateStatus(ticketID, status); err != nil {
 		return nil, err
 	}
+	ctx := context.Background()
+	_ = uc.cacheRepo.Delete(ctx, "dashboard:overview")
 
 	return uc.ticketRepo.FindByID(ticketID)
 
+}
+
+func (uc *ticketUseCase) GetSummaryStat() (*dto.DashboardSummary, error) {
+	ctx := context.Background()
+
+	raw, err := uc.cacheRepo.Get(
+		ctx,
+		"dashboard:overview",
+	)
+
+	if err == nil {
+		var stat dto.DashboardSummary
+
+		if err := json.Unmarshal(
+			[]byte(raw),
+			&stat,
+		); err == nil {
+			return &stat, nil
+		}
+	}
+
+	stat, err := uc.ticketRepo.GetSumary()
+	if err != nil {
+		return nil, err
+	}
+	data, err := json.Marshal(stat)
+	if err == nil {
+		_ = uc.cacheRepo.Set(
+			ctx,
+			"dashboard:overview",
+			string(data),
+			5*time.Minute,
+		)
+	}
+
+	return stat, nil
 }

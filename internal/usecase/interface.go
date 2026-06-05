@@ -3,6 +3,7 @@ package usecase
 import (
 	"mime/multipart"
 
+	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/dto"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 )
 
@@ -16,4 +17,5 @@ type TicketUseCase interface {
 	GetUserTickets(userID string) ([]*entity.Ticket, error)
 	GetAllTicket() ([]*entity.Ticket, error)
 	UpdateTicketStatus(ticketID, updatedBy string, status entity.TicketStatus) (*entity.Ticket, error)
+	GetSummaryStat() (*dto.DashboardSummary, error)
 }

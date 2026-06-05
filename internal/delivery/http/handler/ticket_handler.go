@@ -190,3 +190,23 @@ func (h *TicketHandler) UpdateTicketStatus(c *fiber.Ctx) error {
 	})
 
 }
+
+func (h *TicketHandler) GetDasboardOverview(c *fiber.Ctx) error {
+	userRole := c.Locals("userRole").(string)
+	if userRole != string(entity.RoleAdmin) {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Admin only",
+		})
+	}
+
+	stat, err := h.ticketUsecase.GetSummaryStat()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"stat": stat,
+	})
+}
