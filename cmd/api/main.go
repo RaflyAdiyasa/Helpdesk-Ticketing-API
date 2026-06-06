@@ -8,11 +8,13 @@ import (
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/delivery/http/middleware"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/infrastructure/database"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/infrastructure/repository"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/infrastructure/bucket"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/usecase"
 	pkg "github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/pkg/jwt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
@@ -60,12 +62,14 @@ func main() {
 		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
+	app.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
+	app.Get("/health/live", healthHandler.Liveness)
+	app.Get("/health/ready", healthHandler.Readiness)
+
 	api := app.Group("/api/v1")
 
 	api.Post("/register", authHandler.Register)
 	api.Post("/login", authHandler.Login)
-	api.Get("/health/live", healthHandler.Liveness)
-	api.Get("/health/ready", healthHandler.Readiness)
 
 	ticketGroup := api.Group("/tickets")
 	ticketGroup.Use(middleware.AuthMiddleware(jwtService))

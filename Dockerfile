@@ -14,6 +14,8 @@ FROM alpine:3.22
 
 RUN addgroup -S app && adduser -S app -G app
 
+RUN apk add --no-cache curl ca-certificates
+
 WORKDIR /app
 
 COPY --from=builder /bin/helpdesk-api /app/helpdesk-api

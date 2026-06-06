@@ -36,3 +36,8 @@ func (h *HealthHandler) Readiness(c *fiber.Ctx) error {
 		"service": statusService,
 	})
 }
+
+// func (h *HealthHandler) Metrics(c *fiber.Ctx) error {
+// 	return adaptor.HTTPHandler(promhttp.Handler())(c)
+
+// }
