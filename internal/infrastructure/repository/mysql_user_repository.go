@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 	"gorm.io/gorm"
 )
@@ -54,4 +56,13 @@ func (r *MySQLUserRepository) FIndByUsername(userName string) (*entity.User, err
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *MySQLUserRepository) Ping(ctx context.Context) error {
+	sqlDB, err := r.db.WithContext(ctx).DB()
+	if err != nil {
+		return err
+	}
+
+	return sqlDB.PingContext(ctx)
 }

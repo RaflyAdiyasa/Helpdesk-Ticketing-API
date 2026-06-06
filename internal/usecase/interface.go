@@ -19,3 +19,7 @@ type TicketUseCase interface {
 	UpdateTicketStatus(ticketID, updatedBy string, status entity.TicketStatus) (*entity.Ticket, error)
 	GetSummaryStat() (*dto.DashboardSummary, error)
 }
+
+type HealthUseCase interface {
+	Readiness() (*dto.ServicesStatus, error)
+}

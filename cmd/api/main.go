@@ -47,9 +47,11 @@ func main() {
 
 	authUsecase := usecase.NewAuthUseCase(userRepo, jwtService)
 	ticketUsecase := usecase.NewTicketUseCase(ticketRepo, userRepo, fileRepo, cacheRepo)
+	healthUsecase := usecase.NewHealthUseCase(ticketRepo, userRepo, fileRepo, cacheRepo)
 
 	authHandler := handler.NewAuthHandler(authUsecase)
 	ticketHandler := handler.NewTicketHandler(ticketUsecase)
+	healthHandler := handler.NewHealthHandler(healthUsecase)
 
 	app := fiber.New()
 
@@ -62,6 +64,8 @@ func main() {
 
 	api.Post("/register", authHandler.Register)
 	api.Post("/login", authHandler.Login)
+	api.Get("/health/live", healthHandler.Liveness)
+	api.Get("/health/ready", healthHandler.Readiness)
 
 	ticketGroup := api.Group("/tickets")
 	ticketGroup.Use(middleware.AuthMiddleware(jwtService))

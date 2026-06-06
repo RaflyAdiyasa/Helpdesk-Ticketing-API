@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 )
 
@@ -12,4 +14,5 @@ type UserRepository interface {
 	Update(user *entity.User) error
 	Delete(userID string) error
 	FindAll() ([]*entity.User, error)
+	Ping(ctx context.Context) error
 }

@@ -26,3 +26,7 @@ func (r *RedisRepository) Get(ctx context.Context, key string) (string, error) {
 func (r *RedisRepository) Delete(ctx context.Context, key string) error {
 	return r.client.Del(ctx, key).Err()
 }
+
+func (r *RedisRepository) Ping(ctx context.Context) error {
+	return r.client.Ping(ctx).Err()
+}

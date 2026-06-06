@@ -80,3 +80,8 @@ func (r *MinioRepository) GetPresignedURL(ctx context.Context, objectName string
 
 	return presignedURL.String(), nil
 }
+
+func (r *MinioRepository) Ping(ctx context.Context) error {
+	_, err := r.internalClient.BucketExists(ctx, r.bucket)
+	return err
+}

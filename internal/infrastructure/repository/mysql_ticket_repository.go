@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"time"
 
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/dto"
@@ -110,4 +111,8 @@ func (r *MySQLTicketRepository) GetSumary() (*dto.DashboardSummary, error) {
 	}
 
 	return &res, err
+}
+
+func (r *MySQLTicketRepository) Ping(ctx context.Context) error {
+	return r.db.WithContext(ctx).Exec("SELECT 1").Error
 }

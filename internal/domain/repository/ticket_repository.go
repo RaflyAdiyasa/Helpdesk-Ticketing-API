@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/dto"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/domain/entity"
 )
@@ -15,6 +17,7 @@ type TicketRepositoy interface {
 	Delete(id string) error
 
 	GetSumary() (*dto.DashboardSummary, error)
+	Ping(ctx context.Context) error
 	// GetTicketTrend()
 	// GetStatusDistribution()
 	// GetTopReporters()
