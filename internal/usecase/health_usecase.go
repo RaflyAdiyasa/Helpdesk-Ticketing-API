@@ -24,7 +24,7 @@ func NewHealthUseCase(ticketRepo repository.TicketRepositoy, userRepo repository
 	}
 }
 
-func (u *healthUseCase) Readiness() (*dto.ServicesStatus, error) {
+func (uc *healthUseCase) Readiness() (*dto.ServicesStatus, error) {
 	ctx := context.Background()
 	var msg error
 	status := dto.ServicesStatus{
@@ -33,15 +33,15 @@ func (u *healthUseCase) Readiness() (*dto.ServicesStatus, error) {
 		DatabaseStatus:  "up",
 	}
 
-	if err := u.cacheRepo.Ping(ctx); err != nil {
+	if err := uc.cacheRepo.Ping(ctx); err != nil {
 		status.CacheRepoStatus = "down"
 		msg = errors.New("Service_not_ready")
 	}
-	if err := u.fileRepo.Ping(ctx); err != nil {
+	if err := uc.fileRepo.Ping(ctx); err != nil {
 		status.BucketExists = "down"
 		msg = errors.New("Service_not_ready")
 	}
-	if err := u.ticketRepo.Ping(ctx); err != nil {
+	if err := uc.ticketRepo.Ping(ctx); err != nil {
 		status.DatabaseStatus = "down"
 		msg = errors.New("Service_not_ready")
 	}

@@ -14,5 +14,7 @@ type UserRepository interface {
 	Update(user *entity.User) error
 	Delete(userID string) error
 	FindAll() ([]*entity.User, error)
+	UpdateProfile(user *entity.User) error
+	UpdateProfilePicture(userID string, objectKey string) error
 	Ping(ctx context.Context) error
 }

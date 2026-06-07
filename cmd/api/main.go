@@ -50,7 +50,9 @@ func main() {
 	authUsecase := usecase.NewAuthUseCase(userRepo, jwtService)
 	ticketUsecase := usecase.NewTicketUseCase(ticketRepo, userRepo, fileRepo, cacheRepo)
 	healthUsecase := usecase.NewHealthUseCase(ticketRepo, userRepo, fileRepo, cacheRepo)
+	userUsecase := usecase.NewUserUseCase(userRepo, cacheRepo, fileRepo)
 
+	userHandler := handler.NewUserHandler(userUsecase)
 	authHandler := handler.NewAuthHandler(authUsecase)
 	ticketHandler := handler.NewTicketHandler(ticketUsecase)
 	healthHandler := handler.NewHealthHandler(healthUsecase)
@@ -71,17 +73,29 @@ func main() {
 	api.Post("/register", authHandler.Register)
 	api.Post("/login", authHandler.Login)
 
+	userGroup := api.Group("/users")
+	userGroup.Use(middleware.AuthMiddleware(jwtService))
+
+	userGroup.Get("/me", userHandler.GetMyProfile)
+	userGroup.Patch("/me", userHandler.UpdateMyProfile)
+	userGroup.Patch("/me/profile-picture", userHandler.UpdateMyProfilePicture)
+
 	ticketGroup := api.Group("/tickets")
 	ticketGroup.Use(middleware.AuthMiddleware(jwtService))
 
-	ticketGroup.Post("/", ticketHandler.CreateTicket)
-	ticketGroup.Get("/my-tickets", ticketHandler.GetUserTickets)
+	ticketGroup.Post("", ticketHandler.CreateTicket)
+	ticketGroup.Get("", ticketHandler.GetUserTickets)
 
-	adminGroup := ticketGroup.Group("/admin")
-	adminGroup.Use(middleware.RequireRole("ADMIN"))
-	adminGroup.Get("/all", ticketHandler.GetAllTickets)
+	adminGroup := api.Group("/admin")
+	adminGroup.Use(
+		middleware.AuthMiddleware(jwtService),
+		middleware.RequireRole("ADMIN"),
+	)
+	adminGroup.Get("/tickets", ticketHandler.GetAllTickets)
+	adminGroup.Get("/users", userHandler.GetAllUserUser)
+	adminGroup.Delete("/users/:id", userHandler.DeleteUser)
 	adminGroup.Get("/dashboard", ticketHandler.GetDasboardOverview)
-	adminGroup.Put("/:id/status", ticketHandler.UpdateTicketStatus)
+	adminGroup.Put("/tickets/:id/status", ticketHandler.UpdateTicketStatus)
 
 	log.Printf("Server starting on port %s", cfg.Server.Port)
 	if err := app.Listen(":" + cfg.Server.Port); err != nil {

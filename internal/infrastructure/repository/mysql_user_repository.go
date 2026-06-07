@@ -40,7 +40,9 @@ func (r *MySQLUserRepository) Update(user *entity.User) error {
 	return r.db.Save(user).Error
 }
 func (r *MySQLUserRepository) Delete(userID string) error {
-	return r.db.Delete(&entity.User{}, userID).Error
+	return r.db.
+		Delete(&entity.User{}, "user_id = ?", userID).
+		Error
 }
 func (r *MySQLUserRepository) FindAll() ([]*entity.User, error) {
 	var users []*entity.User
@@ -65,4 +67,23 @@ func (r *MySQLUserRepository) Ping(ctx context.Context) error {
 	}
 
 	return sqlDB.PingContext(ctx)
+}
+
+func (r *MySQLUserRepository) UpdateProfile(user *entity.User) error {
+	return r.db.Model(&entity.User{}).
+		Where("user_id = ?", user.UserID).
+		Updates(map[string]interface{}{
+			"username":   user.Username,
+			"email":      user.Email,
+			"department": user.Department,
+			"is_remote":  user.IsRemote,
+		}).Error
+}
+
+func (r *MySQLUserRepository) UpdateProfilePicture(userID string, objectKey string) error {
+	return r.db.Model(&entity.User{}).
+		Where("user_id = ?", userID).
+		Updates(map[string]interface{}{
+			"profile_pict": objectKey,
+		}).Error
 }

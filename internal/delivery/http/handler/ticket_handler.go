@@ -144,7 +144,10 @@ func (h *TicketHandler) GetUserTickets(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	return c.JSON(tickets)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"Jumlah":  len(tickets),
+		"tickets": tickets,
+	})
 }
 
 func (h *TicketHandler) UpdateTicketStatus(c *fiber.Ctx) error {

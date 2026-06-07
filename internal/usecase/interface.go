@@ -23,3 +23,11 @@ type TicketUseCase interface {
 type HealthUseCase interface {
 	Readiness() (*dto.ServicesStatus, error)
 }
+
+type UserUseCase interface {
+	GetAllUser() ([]*entity.User, error)
+	DeleteUser(userID string) error
+	GetUserProfile(userID string) (*entity.User, error)
+	UpdateUserProfile(userID string, req *dto.UpdateProfileRequest) error
+	UpdateProfilePicture(userID string, imageFile multipart.File, imageFilename string, imageSize int64, imageContentType string) error
+}
