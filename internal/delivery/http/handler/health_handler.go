@@ -15,12 +15,22 @@ func NewHealthHandler(healthUseCase usecase.HealthUseCase) *HealthHandler {
 	}
 }
 
+// @Summary	Liveness Probe
+// @Tags		Health
+// @Produce	json
+// @Success	200	{object}	map[string]string
+// @Router		/health/live [get]
 func (h *HealthHandler) Liveness(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"status": "ok",
 	})
 }
 
+// @Summary	Readiness Probe
+// @Tags		Health
+// @Produce	json
+// @Success	200	{object}	map[string]interface{}
+// @Router		/health/ready [get]
 func (h *HealthHandler) Readiness(c *fiber.Ctx) error {
 	statusService, err := h.healthUseCase.Readiness()
 

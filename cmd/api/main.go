@@ -10,13 +10,24 @@ import (
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/infrastructure/repository"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
+	_ "github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/docs"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/infrastructure/bucket"
 	"github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/internal/usecase"
 	pkg "github.com/RaflyAdiyasa/Helpdesk-Ticketing-API/pkg/jwt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/swagger"
 )
+
+//	@title						Helpdesk Ticketing API
+//	@version					1.0
+//	@description				Helpdesk Ticketing Backend Service
+//	@host						localhost:8080
+//	@BasePath					/api/v1
+//	@securityDefinitions.apikey	BearerAuth
+//	@in							header
+//	@name						Authorization
 
 func main() {
 	cfg := config.LoadConfig()
@@ -70,6 +81,7 @@ func main() {
 
 	api := app.Group("/api/v1")
 
+	api.Get("/swagger/*", swagger.HandlerDefault)
 	api.Post("/register", authHandler.Register)
 	api.Post("/login", authHandler.Login)
 

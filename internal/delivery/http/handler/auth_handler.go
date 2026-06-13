@@ -35,6 +35,18 @@ type AuthResponse struct {
 	User  interface{} `json:"user"`
 }
 
+// Register godoc
+//
+//	@Summary		Register new user
+//	@Description	Create a new user account
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		RegisterRequest	true	"Register Request"
+//	@Success		201		{object}	map[string]interface{}
+//	@Failure		400		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/register [post]
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req RegisterRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -69,6 +81,18 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	})
 }
 
+// Login godoc
+//
+//	@Summary		Login user
+//	@Description	Authenticate user and return JWT token
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		LoginRequest	true	"Login Request"
+//	@Success		200		{object}	AuthResponse
+//	@Failure		400		{object}	map[string]string
+//	@Failure		401		{object}	map[string]string
+//	@Router			/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var req LoginRequest
 	if err := c.BodyParser(&req); err != nil {

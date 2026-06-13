@@ -27,6 +27,20 @@ type UpdateStatusRequest struct {
 	Status entity.TicketStatus `json:"status" validate:"required,oneof=OPEN IN_PROGRESS DONE"`
 }
 
+// CreateTicket godoc
+//
+//	@Summary		Create ticket
+//	@Description	Create support ticket with optional image
+//	@Tags			Tickets
+//	@Security		BearerAuth
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			title		formData	string	true	"Title"
+//	@Param			description	formData	string	true	"Description"
+//	@Param			image		formData	file	false	"Image"
+//	@Success		201			{object}	entity.Ticket
+//	@Failure		400			{object}	map[string]interface{}
+//	@Router			/tickets [post]
 func (h *TicketHandler) CreateTicket(c *fiber.Ctx) error {
 	var req CreateTicketRequest
 	var imageFile multipart.File
@@ -123,6 +137,15 @@ func uploadedFileMetadata(fileHeader *multipart.FileHeader) (string, int64, stri
 	return fileHeader.Filename, fileHeader.Size, contentType
 }
 
+// GetAllTickets godoc
+//
+//	@Summary		Get all tickets
+//	@Description	Requires ADMIN role
+//	@Tags			Admin
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	map[string]interface{}
+//	@Router			/admin/tickets [get]
 func (h *TicketHandler) GetAllTickets(c *fiber.Ctx) error {
 	tickets, err := h.ticketUsecase.GetAllTicket()
 	if err != nil {
@@ -136,6 +159,15 @@ func (h *TicketHandler) GetAllTickets(c *fiber.Ctx) error {
 	})
 }
 
+// GetUserTickets godoc
+//
+//	@Summary		Get my tickets
+//	@Description	Get tickets owned by authenticated user
+//	@Tags			Tickets
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	map[string]interface{}
+//	@Router			/tickets [get]
 func (h *TicketHandler) GetUserTickets(c *fiber.Ctx) error {
 	userId := c.Locals("userID").(string)
 	tickets, err := h.ticketUsecase.GetUserTickets(userId)
@@ -150,6 +182,20 @@ func (h *TicketHandler) GetUserTickets(c *fiber.Ctx) error {
 	})
 }
 
+// UpdateTicketStatus godoc
+//
+//	@Summary		Update ticket status
+//	@Description	Requires ADMIN role
+//	@Tags			Admin
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string				true	"Ticket ID"
+//	@Param			request	body		UpdateStatusRequest	true	"Status"
+//	@Success		202		{object}	map[string]interface{}
+//	@Failure		400		{object}	map[string]interface{}
+//	@Failure		403		{object}	map[string]interface{}
+//	@Router			/admin/tickets/{id}/status [put]
 func (h *TicketHandler) UpdateTicketStatus(c *fiber.Ctx) error {
 	userId := c.Locals("userID").(string)
 	userRole := c.Locals("userRole").(string)
@@ -194,6 +240,15 @@ func (h *TicketHandler) UpdateTicketStatus(c *fiber.Ctx) error {
 
 }
 
+// GetDashboardOverview godoc
+//
+//	@Summary		Dashboard overview
+//	@Description	Requires ADMIN role
+//	@Tags			Dashboard
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	map[string]interface{}
+//	@Router			/admin/dashboard [get]
 func (h *TicketHandler) GetDasboardOverview(c *fiber.Ctx) error {
 	userRole := c.Locals("userRole").(string)
 	if userRole != string(entity.RoleAdmin) {

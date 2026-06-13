@@ -18,8 +18,18 @@ func NewUserHandler(userUseCase usecase.UserUseCase) *UserHandler {
 	return &UserHandler{userUsecase: userUseCase}
 }
 
+// GetMyProfile godoc
+//
+//	@Summary		Get current user profile
+//	@Description	Get authenticated user profile
+//	@Tags			Users
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	map[string]interface{}
+//	@Failure		401	{object}	map[string]interface{}
+//	@Router			/users/me [get]
 func (h *UserHandler) GetMyProfile(c *fiber.Ctx) error {
-
+	// userId := c.Locals("userID").(string)
 	userIdRaw := c.Locals("userID")
 	if userIdRaw == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -46,6 +56,18 @@ func (h *UserHandler) GetMyProfile(c *fiber.Ctx) error {
 	})
 }
 
+// UpdateMyProfile godoc
+//
+//	@Summary		Update profile
+//	@Description	Update authenticated user profile
+//	@Tags			Users
+//	@Security		BearerAuth
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		dto.UpdateProfileRequest	true	"Profile Data"
+//	@Success		200		{object}	map[string]string
+//	@Failure		400		{object}	map[string]interface{}
+//	@Router			/users/me [patch]
 func (h *UserHandler) UpdateMyProfile(c *fiber.Ctx) error {
 	var req dto.UpdateProfileRequest
 
@@ -89,6 +111,18 @@ func (h *UserHandler) UpdateMyProfile(c *fiber.Ctx) error {
 	})
 }
 
+// UpdateProfilePicture godoc
+//
+//	@Summary		Upload profile picture
+//	@Description	Upload user profile picture
+//	@Tags			Users
+//	@Security		BearerAuth
+//	@Accept			multipart/form-data
+//	@Produce		json
+//	@Param			profile_picture	formData	file	true	"Profile Picture"
+//	@Success		200				{object}	map[string]string
+//	@Failure		400				{object}	map[string]interface{}
+//	@Router			/users/me/profile-picture [patch]
 func (h *UserHandler) UpdateMyProfilePicture(c *fiber.Ctx) error {
 	var imageFile multipart.File
 	var imageHeader *multipart.FileHeader
@@ -157,6 +191,16 @@ func (h *UserHandler) UpdateMyProfilePicture(c *fiber.Ctx) error {
 	})
 }
 
+// DeleteUser godoc
+//
+//	@Summary		Delete user
+//	@Description	Requires ADMIN role
+//	@Tags			Admin
+//	@Security		BearerAuth
+//	@Param			id	path		string	true	"User ID"
+//	@Success		200	{object}	map[string]string
+//	@Failure		404	{object}	map[string]interface{}
+//	@Router			/admin/users/{id} [delete]
 func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	userID := c.Params("id")
 
@@ -171,6 +215,16 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	})
 }
 
+// GetAllUsers godoc
+//
+//	@Summary		Get all users
+//	@Description	Requires ADMIN role
+//	@Tags			Admin
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	map[string]interface{}
+//	@Failure		403	{object}	map[string]interface{}
+//	@Router			/admin/users [get]
 func (h *UserHandler) GetAllUserUser(c *fiber.Ctx) error {
 	userRole := c.Locals("userRole").(string)
 	if userRole != string(entity.RoleAdmin) {

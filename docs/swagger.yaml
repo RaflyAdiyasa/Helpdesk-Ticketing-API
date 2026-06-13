@@ -1,0 +1,497 @@
+basePath: /api/v1
+definitions:
+  dto.UpdateProfileRequest:
+    properties:
+      department:
+        type: string
+      email:
+        type: string
+      remote:
+        type: boolean
+      username:
+        type: string
+    type: object
+  entity.Role:
+    enum:
+    - USER
+    - ADMIN
+    type: string
+    x-enum-varnames:
+    - RoleUser
+    - RoleAdmin
+  entity.Ticket:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      image:
+        type: string
+      owner:
+        allOf:
+        - $ref: '#/definitions/entity.User'
+        description: Relationship
+      status:
+        $ref: '#/definitions/entity.TicketStatus'
+      ticket_id:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  entity.TicketStatus:
+    enum:
+    - OPEN
+    - IN_PROGRESS
+    - DONE
+    type: string
+    x-enum-varnames:
+    - StatusOpen
+    - StatusInProgress
+    - StatusDone
+  entity.User:
+    properties:
+      created_at:
+        type: string
+      department:
+        type: string
+      email:
+        type: string
+      profile_pict:
+        type: string
+      remote:
+        type: boolean
+      role:
+        $ref: '#/definitions/entity.Role'
+      tickets:
+        description: Relationship
+        items:
+          $ref: '#/definitions/entity.Ticket'
+        type: array
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  handler.AuthResponse:
+    properties:
+      token:
+        type: string
+      user: {}
+    type: object
+  handler.LoginRequest:
+    properties:
+      password:
+        minLength: 6
+        type: string
+      username:
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  handler.RegisterRequest:
+    properties:
+      department:
+        type: string
+      email:
+        type: string
+      is_remote:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      role:
+        type: string
+      username:
+        minLength: 3
+        type: string
+    required:
+    - department
+    - email
+    - is_remote
+    - password
+    - role
+    - username
+    type: object
+  handler.UpdateStatusRequest:
+    properties:
+      status:
+        allOf:
+        - $ref: '#/definitions/entity.TicketStatus'
+        enum:
+        - OPEN
+        - IN_PROGRESS
+        - DONE
+    required:
+    - status
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Helpdesk Ticketing Backend Service
+  title: Helpdesk Ticketing API
+  version: "1.0"
+paths:
+  /admin/dashboard:
+    get:
+      description: Requires ADMIN role
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Dashboard overview
+      tags:
+      - Dashboard
+  /admin/tickets:
+    get:
+      description: Requires ADMIN role
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all tickets
+      tags:
+      - Admin
+  /admin/tickets/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Requires ADMIN role
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Status
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.UpdateStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update ticket status
+      tags:
+      - Admin
+  /admin/users:
+    get:
+      description: Requires ADMIN role
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all users
+      tags:
+      - Admin
+  /admin/users/{id}:
+    delete:
+      description: Requires ADMIN role
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - Admin
+  /health/live:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Liveness Probe
+      tags:
+      - Health
+  /health/ready:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Readiness Probe
+      tags:
+      - Health
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - Auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account
+      parameters:
+      - description: Register Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register new user
+      tags:
+      - Auth
+  /tickets:
+    get:
+      description: Get tickets owned by authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get my tickets
+      tags:
+      - Tickets
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create support ticket with optional image
+      parameters:
+      - description: Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Image
+        in: formData
+        name: image
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.Ticket'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create ticket
+      tags:
+      - Tickets
+  /users/me:
+    get:
+      description: Get authenticated user profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - Users
+    patch:
+      consumes:
+      - application/json
+      description: Update authenticated user profile
+      parameters:
+      - description: Profile Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update profile
+      tags:
+      - Users
+  /users/me/profile-picture:
+    patch:
+      consumes:
+      - multipart/form-data
+      description: Upload user profile picture
+      parameters:
+      - description: Profile Picture
+        in: formData
+        name: profile_picture
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload profile picture
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
