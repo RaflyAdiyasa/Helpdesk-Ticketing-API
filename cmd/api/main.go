@@ -75,11 +75,11 @@ func main() {
 		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
-	app.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
-	app.Get("/health/live", healthHandler.Liveness)
-	app.Get("/health/ready", healthHandler.Readiness)
 
 	api := app.Group("/api/v1")
+	api.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
+	api.Get("/health/live", healthHandler.Liveness)
+	api.Get("/health/ready", healthHandler.Readiness)
 
 	api.Get("/swagger/*", swagger.HandlerDefault)
 	api.Post("/register", authHandler.Register)
