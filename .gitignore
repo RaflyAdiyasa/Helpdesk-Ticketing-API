@@ -5,3 +5,9 @@ test/unit_test.go
 test/
 
 cmd/api/.env
+
+agents/*
+
+README.md
+docker-compose.yml
+Jenkinsfile
