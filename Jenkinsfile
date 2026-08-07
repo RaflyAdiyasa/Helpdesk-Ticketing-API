@@ -8,11 +8,14 @@ pipeline {
 
             steps {
                 sh 'ls -alth'
-                sh 'trivy fs --timeout 14m -f json -o result.json .'
+                sh 'trivy fs --timeout 14m --severity HIGH,CRITICAL .'
             }
         }
 
         stage('Test golang') {
+
+            agent { label "golang"}
+
             steps {
                 sh 'go version'
                 sh 'ls -alth'
