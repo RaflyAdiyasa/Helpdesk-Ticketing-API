@@ -1,18 +1,20 @@
 pipeline {
-    agent {
-        label 'golang'
-    }
 
     stages {
-        stage('Checkout') {
+        stage('Test trivy') {
+                
+            agent { label "trivy" }
+
             steps {
                 sh 'ls -alth'
+                sh 'trivy fs -f json -o result.json .'
             }
         }
 
-        stage('Go Version') {
+        stage('Test golang') {
             steps {
                 sh 'go version'
+                sh 'ls -alth'
             }
         }
     }

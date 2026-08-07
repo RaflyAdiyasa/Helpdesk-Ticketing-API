@@ -7,7 +7,3 @@ test/
 cmd/api/.env
 
 agents/*
-
-README.md
-docker-compose.yml
-Jenkinsfile
