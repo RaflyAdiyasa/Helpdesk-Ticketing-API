@@ -8,7 +8,7 @@ pipeline {
 
             steps {
                 sh 'ls -alth'
-                sh 'trivy fs -f json -o result.json .'
+                sh 'trivy fs --timeout 14m -f json -o result.json .'
             }
         }
 
