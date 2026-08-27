@@ -21,5 +21,18 @@ pipeline {
                 sh 'ls -alth'
             }
         }
+
+        stage('Test docker registry') {
+
+            agent { label "docker"}
+
+            steps {
+                script {
+                        withDockerRegistry(credentialsId: 'dockerhub') {
+                               sh "docker build -t huan271/tickeria:latest ."
+                            }
+                        }
+            }
+        }
     }
 }
